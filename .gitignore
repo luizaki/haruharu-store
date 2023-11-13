@@ -1,2 +1,5 @@
 # ignore .csv files
-.csv
+*.csv
+
+# ignore experimental files
+User.java
