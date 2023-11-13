@@ -47,33 +47,4 @@ public class RWcsv{
 
         return albums;
     }
-
-    public static void writeCSV(){ // nakaw from last case study
-        // // setups
-        // String line, file;
-        // ArrayList<String> songList = new ArrayList<String>();
-
-        // // puts each record into one line
-        // for(Songs s : songs){
-        //     line = s.getID() + "," + s.getTitle() + "," + s.getArtist() + "," +
-        //            s.getRelease() + "," + s.getGenre() + "," + s.getDuration() + "," +
-        //            s.getScoreCount() + "," + s.getScoreTotal() + "," + s.getScoreAverage();
-            
-        //     songList.add(line);
-        // }
-        
-        // // joins all records together in one string
-        // file = String.join("\n", songList);
-        
-        // try{
-        //     FileWriter write = new FileWriter("SongList.csv");
-
-        //     write.append(file);
-
-        //     write.close();
-        // }
-        // catch(IOException e){
-        //     e.printStackTrace();
-        // }
-    }
 }

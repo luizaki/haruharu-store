@@ -3,12 +3,17 @@ import java.util.*;
 public class Store{
     static Scanner in = new Scanner(System.in);
 
-    // readCSV()
+    // displayMenu()
 
-    // writeCSV()
+    // placeOrder()
+
+    // cancelOrder()
+
+    // viewOrderHistory()
 
     public static void main(String[] args){
-        int menuInput;
+        // setups
+            // import catalog
 
         // logIn() (TENTATIVE FEATURE)
 
