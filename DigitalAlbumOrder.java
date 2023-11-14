@@ -9,6 +9,23 @@ public class DigitalAlbumOrder extends AlbumOrder{
         this.buyerEmail = buyerEmail; // verifier TBD
     }
 
+    // alt constructor
+    public DigitalAlbumOrder(Album album, int quantity, LocalDate datePurchased, String buyerName, long buyerContact, String discounted, double totalPrice, int refID, String buyerEmail){
+        super(album, quantity, datePurchased, buyerName, buyerContact, discounted, totalPrice, refID);
+
+        this.totalPrice = totalPrice;
+        this.refID = refID;
+        this.buyerEmail = buyerEmail;
+    }
+
+    // getters
+    public String getBuyerEmail(){return this.buyerEmail;}
+
+    // WIP (discounted not counted for)
+    protected double calculateTotal(int quantity, double price, String discounted){
+        return quantity * price;
+    }
+
     public void display(){ // WIP
         System.out.println("[Displaying Order Ref. " + refID + " ]");
         System.out.println("\tAlbum Name: " + album.getAlName());
