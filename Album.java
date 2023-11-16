@@ -22,4 +22,9 @@ public class Album{
     public String getArtistType(){return this.artistType;}
     public LocalDate getRelease(){return this.release;}
     public double getPrice(){return this.price;}
+
+    // temporary display method
+    public void display(){
+        System.out.println(String.join("\n", this.getAlName(), this.getArtist(), this.getArtistType(), this.getRelease().toString(), Double.toString(this.getPrice())));
+    }
 }

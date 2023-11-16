@@ -1,4 +1,5 @@
 import java.util.*;
+import java.time.LocalDate;
 
 public class Store{
     static Scanner in = new Scanner(System.in);
@@ -27,7 +28,7 @@ public class Store{
             }
 
             // print next possible options of user
-            System.out.print("[P]revious, [N]ext, [F]ilter, [O]rder, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
+            System.out.print("\n[P]revious, [N]ext, [F]ilter, [O]rder, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
 
             switch(input){
                 case 'P':{ // prev
@@ -50,8 +51,12 @@ public class Store{
                     break;
                 }
                 case 'O':{ // order
-                    // System.out.print("Input the number of the album you're ordering > "); int index = in.nextInt();
-                    // placeOrder(index-1);
+                    System.out.print("Input the number of the album you're ordering > "); int index = in.nextInt(); in.nextLine();
+
+                    keepDisplaying = false;
+                    
+                    if(albums.length == catalog.length) placeOrder(index - 1); // if displayCatalog is currently displaying catalog
+                    else placeOrder(Arrays.asList(catalog).indexOf(albums[index - 1]));
                     break;
                 }
                 case 'E':{ // exit
@@ -122,32 +127,96 @@ public class Store{
         }
     }
 
-    public static void placeOrder(int index){
-        // set default values for each field
-        // set album to index based on catalog
-        // confirm if they'd like to place order on the given album
+    public static void placeOrder(int index){ // WIP
+        Album album = catalog[index];
+        char confirm, confirm2;
+        AlbumOrder order = null;
+        System.out.println("You will be ordering the following: ");
+        album.display();
+        System.out.print("Confirm order? [Y/N]"); confirm = in.nextLine().toUpperCase().charAt(0);
 
-        // while loop for inputs
-            // input physical or digital
-            // input quantity
-            // input buyer details
-            // branch inputs between physiscal or digital
-            // create object
-            // AlbumOrder.display()
-            // ask user to confirm details, exit loop if confirmed
+        if(confirm == 'Y'){
+            // inputs
+            while(true){
+                System.out.print("Would you like [P]hysical or [D]igital copies? > "); char albumType = in.nextLine().toUpperCase().charAt(0);
+                System.out.print("Input quantity > "); int quantity = in.nextInt(); in.nextLine();
+                System.out.print("Input full name > "); String buyerName = in.nextLine();
+                System.out.print("Input contact # > "); long buyerContact = in.nextLong(); in.nextLine();
 
-        // readOrders()
-        // convert orders array to ArrayList
-        // add new AlbumOrder object
-        // convert ArrayList back to array
-        // writeOrders()
+                // branch to physical and digital
+                if(albumType == 'P'){
+                    System.out.print("Input shipping address > "); String shippingAddress = in.nextLine();
+                    order = new PhysicalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, buyerName, shippingAddress);
+                }
+                else if (albumType == 'D'){
+                    System.out.print("Input email"); String buyerEmail = in.nextLine();
+                    order = new DigitalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, buyerName, buyerEmail);
+                }
 
-        // success message
+                order.display();
+                System.out.println("Is this correct? [Y/N] > "); confirm2 = in.nextLine().toUpperCase().charAt(0);
+                
+                // adding the new order to orders.csv
+                if(confirm2 == 'Y'){
+                    ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
+                    orderList.add(order);
+                    AlbumOrder[] updatedOrderList = orderList.toArray(new AlbumOrder[orderList.size()]);
+                    RWcsv.writeOrders(updatedOrderList);
+
+                    System.out.println("Order successfully added!");
+                    break;
+                }
+                else if(confirm2 == 'N') continue;
+                else{
+                    // throw error?
+                }
+            }
+        }
     }
 
-    // viewOrderHistory()
-                    // if not none/reset, make new array from catalog and filter based on input
-                    // displayCatalog(newArray)
+    public static void displayOrderHistory(AlbumOrder[] ords){
+        // setups
+        int page = 0;
+        boolean keepDisplaying = true;
+        char input;
+
+        do{
+            System.out.println("Page " + (page+1));
+
+            System.out.println();
+
+            // print next possible options of user
+            System.out.print("\n[P]revious, [N]ext, [V]iew Album Details, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
+
+            switch(input){
+                case 'P':{ // prev
+                    if(page == 0){
+                        // throw error?
+                    }
+                    else page--;
+                    break;
+                }
+                case 'N':{ // next
+                    if(page == ords.length){
+                        // throw error?
+                    }
+                    else page++;
+                    break;
+                }
+                case 'E':{ // exit
+                    keepDisplaying = false;
+                    break;
+                }
+                default:{
+                    // throw error?
+                }
+            }
+        } while(keepDisplaying);
+    }
+                // cancel order
+                    // let user input which order based on current numbering and fetch that order
+                    // match refID to catalog and retrieve index
+                    // call cancelOrder(index)
                 // exit
                     // end loop and method
 
@@ -165,30 +234,8 @@ public class Store{
 
         // success message
 
-    // displayOrderHistory(orders)
-        // initialise page to 0
-        // while loop to keep displaying
-            // set up starting and ending indices based on page
-
-            // print header
-            // for loop to print each AlbumOrder object (number each to 1-10)
-
-            // print options to prev page, next page, cancel order, exit display
-                // next page
-                    // page += 1 if not in max page
-                    // loop restarts
-                // prev page
-                    // page -= 1 if not in min page
-                    // loop restarts
-                // cancel order
-                    // let user input which order based on current numbering and fetch that order
-                    // match refID to catalog and retrieve index
-                    // call cancelOrder(index)
-                // exit
-                    // end loop and method
-
     public static void main(String[] args){
-        displayCatalog(catalog);
+        displayOrderHistory(orders);
         // logIn() (TENTATIVE FEATURE)
 
         // do displayMenu() while input is invalid
