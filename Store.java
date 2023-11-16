@@ -3,68 +3,126 @@ import java.util.*;
 public class Store{
     static Scanner in = new Scanner(System.in);
     static Album[] catalog = RWcsv.readCatalog();
+    static AlbumOrder[] orders = RWcsv.readOrders();
 
-    
-  // displayCatalog(catalog)
-  public static void displayCatalog(Album catalog){
-  // initialise page to 0
-    int page = 0;
-  //while loop to keep displaying
-    while(true){
-      // set up starting and ending indices based on page
-      int startind = page;
-      int endind = catalog.length();
-      // print header
-      System.our.println("Album Catalog:");
-      // for loop to print each Album object (number each to 1-10)
-      for (int i = startind; i < endind){
-        System.out.println("Album #", page);
-        System.out.println("Album name: ", catalog[i].getAlName());
-        System.out.println("Artist name: ", catalog[i].getArtist());
-        System.out.println("Artist Type: ", catalog[i].getArtistType());
-        System.out.println("Release Date: ", catalog[i].getReleaseDate());
-        System.our.println("Price: ", catalog[i].getPrice());
-      
-      
-      // print options to prev page, next page, place order, filter, exit display
-        System.out.println("1. Previous page\n2. Next page\n3. Place order\n4. Filter\n5. Exit display"); int options = in.nextInt();
-        switch(options){
-        // next page
-            case 1:
-            // page += 1 if not in max page
-              page++;
-              break;
-            // loop restarts
-         // prev page
-            case 2:
-            // page -= 1 if not in min page
-              page--;
-              break;
-            // loop restarts
-        // place order
-            case 3:
-              int index = page - 1;
-            // let user input which album based on current numbering and fetch that album
-            // match album to catalog and retrieve index
-            // call placeOrder(index)
-            placeOrder(index)
-        // filter
-            case 4:
-            // ask to filter on album name/artist/artist type or none/reset
-            // if none/reset, displayCatalog(catalog)
-            // if album name/artist, have user input and match if those exist in catalog
-            // if type, menu for boy group/girl group/soloist/coed
-      
-            // if not none/reset, make new array from catalog and filter based on input
-            // displayCatalog(newArray)
-        // exit
-            // end loop and method
+    public static void displayCatalog(Album[] albums){
+        // setups
+        int page = 0;
+        boolean keepDisplaying = true;
+        char input;
+
+        do{
+            // initialise indices to fetch albums from based on current page
+            int startIndex = page * 10;
+            int endIndex = Math.min(startIndex + 10, albums.length); // get min to prevent extra indices on last page
+
+            System.out.println("Page " + (page+1));
+            System.out.println("Name " + "Artist " + "Artist Type " + "Release " + "Price");
+
+            // for loop to print 10 Album objects at a time
+            for(int i = startIndex; i < endIndex; i++){
+                System.out.print((i + 1) + ". ");
+                System.out.println(String.join(" | ", albums[i].getAlName(), albums[i].getArtist(),
+                albums[i].getArtistType(), albums[i].getRelease().toString(), Double.toString(albums[i].getPrice())));
+            }
+
+            // print next possible options of user
+            System.out.print("[P]revious, [N]ext, [F]ilter, [O]rder, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
+
+            switch(input){
+                case 'P':{ // prev
+                    if(startIndex == 0){
+                        // throw error?
+                    }
+                    else page--;
+                    break;
+                }
+                case 'N':{ // next
+                    if(endIndex == albums.length){
+                        // throw error?
+                    }
+                    else page++;
+                    break;
+                }
+                case 'F':{ // filter
+                    keepDisplaying = false; // to avoid nested displayCatalog()s
+                    filterCatalog();
+                    break;
+                }
+                case 'O':{ // order
+                    // System.out.print("Input the number of the album you're ordering > "); int index = in.nextInt();
+                    // placeOrder(index-1);
+                    break;
+                }
+                case 'E':{ // exit
+                    keepDisplaying = false;
+                    break;
+                }
+                default:{
+                    // throw error?
+                }
+            }
+        } while(keepDisplaying);
+    }
+
+    public static void filterCatalog(){
+        System.out.print("Filter on: [A]rtist, [T]ype, or [R]eset > "); char filter = in.nextLine().toUpperCase().charAt(0);
+
+        switch(filter){
+            case 'A':{ // artist
+                System.out.print("Input name of artist > "); String artist = in.nextLine().toUpperCase();
+
+                // retrieve list of artists in catalog and remove dupes
+                ArrayList<String> names = new ArrayList<String>();
+                for(Album al : catalog) names.add(al.getArtist().toUpperCase());
+                Set<String> unique = new HashSet<String>(names);
+                names.clear(); names.addAll(unique);
+
+                // check if match exists
+                boolean match = false;
+                for(int j = 0; j < names.size(); j++){
+                    if(artist.equals(names.get(j))) match = true;
+                }
+
+                if(match){
+                    Album[] updated = Arrays.stream(catalog)
+                                            .filter(a -> artist.equals(a.getArtist().toUpperCase()))
+                                            .toArray(Album[]::new);
+                    displayCatalog(updated);
+                }
+                else{
+                    // throw error?
+                }
+                break;
+            }
+            case 'T':{ // type
+                System.out.print("Input [BG] Boy Group, [GG] Girl Group, [CE] CO-ED Group, [BS] Boy Soloist, [GS] Girl Soloist > "); String type = in.nextLine().toUpperCase();
+
+                // hashmap of types and their input codes
+                HashMap<String, String> types = new HashMap<String, String>();
+                types.put("BG", "Boy Group");
+                types.put("GG", "Girl Group");
+                types.put("CE", "CO-ED Group");
+                types.put("BS", "Boy Soloist");
+                types.put("GS", "Girl Soloist");
+
+                // filter based on key/value
+                Album[] updated = Arrays.stream(catalog)
+                                        .filter(a -> types.get(type).equals(a.getArtistType()))
+                                        .toArray(Album[]::new);
+                displayCatalog(updated);
+                break;
+            }
+            case 'R':{ // reset back to printing entire catalog
+                displayCatalog(catalog);
+            }
+            default:{
+                // throw error?
+            }
         }
-      }
-  }
-}
+    }
 
-    // placeOrder(index)
+    public static void placeOrder(int index){
         // set default values for each field
         // set album to index based on catalog
         // confirm if they'd like to place order on the given album
@@ -85,7 +143,13 @@ public class Store{
         // writeOrders()
 
         // success message
+    }
 
+    // viewOrderHistory()
+                    // if not none/reset, make new array from catalog and filter based on input
+                    // displayCatalog(newArray)
+                // exit
+                    // end loop and method
 
     // cancelOrder(index)
         // while loop for input validation
@@ -123,50 +187,21 @@ public class Store{
                 // exit
                     // end loop and method
 
-  public static void main(String[] args){
-      int code = 0;
-      System.out.println("==== Menu ====");
-      System.out.print("[1] See available albums\n[2] Cancel an order\n[3] View purchase history\n[4] Exit");
-      String choice = in.nextLine();
-      while(true){
-          try{
-              switch(choice){
-                  case "1":
-                      displayCatalog(catalog);
-                      break;
-                  case "2":
-                      cancelOrder(index);
-                      break;
-                  case "3":
-                      displayOrderHistory(orders);
-                      break;
-                  case "4":
-                      System.out.print("Terminating Program.");
-                      System.exit(0);
-                  default:
-                      System.out.print("Invalid input. Only allowed input --> 1-4.")
-              }
+    public static void main(String[] args){
+        displayCatalog(catalog);
+        // logIn() (TENTATIVE FEATURE)
 
-          } catch(InputMismatchException e){
-            code = 1;
-              System.out.println(StoreMessages.msg[code]);
-          } catch(StoreException e){
-            System.out.println(e.getMessage());
-          }
-      }
-  }   
+        // do displayMenu() while input is invalid
+        // display menu until input is valid
 
-  public static void check(int refID, String email) throws StoreException{
-    int code= 2;
-    if ((refID instanceof Integer) == false)
-      throw new StoreException(StoreMessage.msg[code]);
-    
-  }
-  public static void check(String email) throws StoreException{
-    int code = 3;
-    if (!email.contains("@") || !email.contains("."))
-      throw new StoreException(StoreMessage.msg[code]);
-  }
+        // switch case through displayMenu() inputs
+            // search available albums
+            // place an order
+            // see available albums (displayCatalog())
+            // cancel an order
+            // view purchase history
+            // log out/exit
+    }
 
     // exception classes go here
         // THINGS TO THROW:
@@ -174,20 +209,4 @@ public class Store{
         // Invalid DataTypes
         // Invalid Email
         // Other general invalid inputs
-  
-  public class StoreMessages {
-    public static String[] msg = {
-      "Valid input. Please Proceed", //0
-      "Input is invalid.", //1
-      "Invalid Data Type", //2
-      "Invalid Email", //3
-    };
-  }
-
-  public class StoreException extends Exception{
-      public StoreException(String s){
-          super(s);
-      }
-  }
-  
 }
