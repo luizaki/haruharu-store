@@ -83,7 +83,7 @@ public class RWcsv{
             // match album field to catalog to retrieve info
             Album[] catalog = readCatalog();
             ArrayList<String> alNames = new ArrayList<String>();
-            for(int j = 0; j < catalog.length; j++) alNames.add(catalog[i].getAlName());
+            for(int j = 0; j < catalog.length; j++) alNames.add(catalog[j].getAlName());
 
             // retrieve basic AlbumOrder() attributes
             int refID = Integer.parseInt(albumInfo[0]);
@@ -97,14 +97,14 @@ public class RWcsv{
             boolean discounted = Boolean.parseBoolean(albumInfo[8]);
 
             // categorize orders into PhysicalAlbumOrder and DigitalAlbumOrder
-            if((albumInfo[8] != "N/A" && albumInfo[9] != "N/A") && albumInfo[10] == "N/A"){
-                String shippingAddress = albumInfo[8];
-                double shippingFee = Double.parseDouble(albumInfo[9]);
+            if(albumInfo[11].equals("N/A")){
+                String shippingAddress = albumInfo[9];
+                double shippingFee = Double.parseDouble(albumInfo[10]);
 
                 orders[i] = new PhysicalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, subTotal, totalPrice, refID, shippingAddress, shippingFee);
             }
-            else if((albumInfo[8] == "N/A" && albumInfo[9] == "N/A") && albumInfo[10] != "N/A"){
-                String buyerEmail = albumInfo[10];
+            else{
+                String buyerEmail = albumInfo[11];
 
                 orders[i] = new DigitalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, subTotal, totalPrice, refID, buyerEmail);
             }
@@ -125,10 +125,10 @@ public class RWcsv{
 
             // add additional fields of physical and digital
             if(ord instanceof PhysicalAlbumOrder){
-                line += "," + String.join(",", ((PhysicalAlbumOrder) ord).getShippingAddress(), Double.toString(((PhysicalAlbumOrder) ord).getShippingFee()));
+                line += "," + String.join(",", ((PhysicalAlbumOrder) ord).getShippingAddress(), Double.toString(((PhysicalAlbumOrder) ord).getShippingFee()), "N/A");
             }
             else if(ord instanceof DigitalAlbumOrder){
-                line += "," + ((DigitalAlbumOrder) ord).getBuyerEmail();
+                line += String.join("N/A", "N/A") + "," + ((DigitalAlbumOrder) ord).getBuyerEmail();
             }
 
             orderList.add(line);
