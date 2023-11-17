@@ -89,23 +89,24 @@ public class RWcsv{
             int refID = Integer.parseInt(albumInfo[0]);
             Album album = catalog[alNames.indexOf(albumInfo[1])];
             int quantity = Integer.parseInt(albumInfo[2]);
-            double totalPrice = Double.parseDouble(albumInfo[3]);
-            LocalDate datePurchased = LocalDate.parse(albumInfo[4], DATEFORMATTER);
-            String buyerName = albumInfo[5];
-            long buyerContact = Long.parseLong(albumInfo[6]);
-            String discounted = albumInfo[7];
+            double subTotal = Double.parseDouble(albumInfo[3]);
+            double totalPrice = Double.parseDouble(albumInfo[4]);
+            LocalDate datePurchased = LocalDate.parse(albumInfo[5], DATEFORMATTER);
+            String buyerName = albumInfo[6];
+            long buyerContact = Long.parseLong(albumInfo[7]);
+            boolean discounted = Boolean.parseBoolean(albumInfo[8]);
 
             // categorize orders into PhysicalAlbumOrder and DigitalAlbumOrder
             if((albumInfo[8] != "N/A" && albumInfo[9] != "N/A") && albumInfo[10] == "N/A"){
                 String shippingAddress = albumInfo[8];
                 double shippingFee = Double.parseDouble(albumInfo[9]);
 
-                orders[i] = new PhysicalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, totalPrice, refID, shippingAddress, shippingFee);
+                orders[i] = new PhysicalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, subTotal, totalPrice, refID, shippingAddress, shippingFee);
             }
             else if((albumInfo[8] == "N/A" && albumInfo[9] == "N/A") && albumInfo[10] != "N/A"){
                 String buyerEmail = albumInfo[10];
 
-                orders[i] = new DigitalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, totalPrice, refID, buyerEmail);
+                orders[i] = new DigitalAlbumOrder(album, quantity, datePurchased, buyerName, buyerContact, discounted, subTotal, totalPrice, refID, buyerEmail);
             }
         }
 
@@ -118,8 +119,9 @@ public class RWcsv{
 
         // fill up orderList with each AlbumOrder(), converting each to one line
         for(AlbumOrder ord : orders){
+
             // make initial line
-            line = String.join(",", Integer.toString(ord.getRefID()), ord.getAlbum().getAlName(), Integer.toString(ord.getQuantity()), Double.toString(ord.getTotalPrice()), ord.getDatePurchased().toString(), ord.getBuyerName(), Long.toString(ord.getBuyerContact()), ord.getDiscounted());
+            line = String.join(",", Integer.toString(ord.getRefID()), ord.getAlbum().getAlName(), Integer.toString(ord.getQuantity()), Double.toString(ord.getSubTotal()),Double.toString(ord.getTotalPrice()), ord.getDatePurchased().toString(), ord.getBuyerName(), Long.toString(ord.getBuyerContact()), Boolean.toString(ord.getDiscounted()));
 
             // add additional fields of physical and digital
             if(ord instanceof PhysicalAlbumOrder){
@@ -128,6 +130,8 @@ public class RWcsv{
             else if(ord instanceof DigitalAlbumOrder){
                 line += "," + ((DigitalAlbumOrder) ord).getBuyerEmail();
             }
+
+            orderList.add(line);
         }
 
         // formulate entire csv file by joining all lines
