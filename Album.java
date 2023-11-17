@@ -25,6 +25,10 @@ public class Album{
 
     // temporary display method
     public void display(){
-        System.out.println(String.join("\n", this.getAlName(), this.getArtist(), this.getArtistType(), this.getRelease().toString(), Double.toString(this.getPrice())));
+        System.out.println("Album Name: " + this.alName);
+        System.out.println("Aritst: " + this.artist);
+        System.out.println("Artist Type: " + this.artistType);
+        System.out.println("Release Date: " + this.release);
+        System.out.println("Unit Price: " + this.price);
     }
 }

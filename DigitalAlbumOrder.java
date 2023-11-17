@@ -27,10 +27,19 @@ public class DigitalAlbumOrder extends AlbumOrder{
         else this.totalPrice = subTotal;
     }
 
-    public void display(){ // WIP
-        System.out.println("[Displaying Order Ref. " + refID + " ]");
-        System.out.println("\tAlbum Name: " + album.getAlName());
-        System.out.println("\tAlbum Artist: " + album.getArtist() + " (" + album.getArtistType() + ")");
-        System.out.println("\tAlbum Release: " + album.getRelease());
+    public void display(){
+        System.out.println("[Displaying Order Ref. " + refID + "]");
+        System.out.println("\tAlbum: " + album.getAlName() + " (" + album.getRelease() + ")");
+        System.out.println("\tArtist: " + album.getArtist() + " (" + album.getArtistType() + ")");
+        System.out.println();
+        System.out.println("\tBuyer Name: " + this.buyerName);
+        System.out.println("\tBuyer Contact: " + this.buyerContact);
+        System.out.println("\tBuyer Email: " + this.buyerEmail);
+        System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
+        System.out.println();
+        System.out.println("\tHas 10% Discount: " + this.discounted);
+        System.out.println("\tTotal Price: " + phpFormat.format(this.totalPrice));        
+        System.out.println();
+        System.out.println("\tDate of Purchase: " + this.datePurchased);
     }
 }

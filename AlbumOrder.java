@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Random;
 import java.text.DecimalFormat;
 
@@ -54,7 +55,18 @@ public abstract class AlbumOrder{
 
     protected void generateRefID(){
         Random rnd = new Random();
-        this.refID = rnd.nextInt((9999999 - 1000000) + 1) + 1000000;
+        int generated = 0;
+
+        // fetch all refIDs to prevent duplicates
+        AlbumOrder[] orders = RWcsv.readOrders();
+        ArrayList<Integer> refIDs= new ArrayList<Integer>();
+        for(AlbumOrder ord : orders) refIDs.add(ord.getRefID());
+
+        do{
+            generated = rnd.nextInt((9999999 - 1000000) + 1) + 1000000;
+        } while(refIDs.contains(generated));
+
+        this.refID = generated;
     }
 
     protected abstract void calculateTotal();
