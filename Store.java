@@ -11,6 +11,8 @@ public class Store{
         int page = 0;
         boolean keepDisplaying = true;
         char input;
+        
+        DecimalFormat df = new DecimalFormat("#.##");
 
         do{
             try{
@@ -18,20 +20,25 @@ public class Store{
                 int startIndex = page * 10;
                 int endIndex = Math.min(startIndex + 10, albums.length); // get min to prevent extra indices on last page
 
-                System.out.println("\nPage " + (page+1));
-                System.out.println(String.join(" | ", "Name", "Artist", "Artist Type", "Release", "Price"));
+                System.out.println("Page " + (page+1));
+                System.out.print("     ");
+                System.out.printf("%-44s | %-19s | %-12s | %-10s | %-1s ","Name", "Artist", "Artist Type", "Release", "Price");
+                System.out.println("");
+                System.out.println("-----------------------------------------------------------------------------------------------------------");
 
                 // for loop to print 10 Album objects at a time
                 for(int i = startIndex; i < endIndex; i++){
-                    System.out.print((i + 1) + ". ");
-                    System.out.println(String.join(" | ", albums[i].getAlName(), albums[i].getArtist(),
-                    albums[i].getArtistType(), albums[i].getRelease().toString(), Double.toString(albums[i].getPrice())));
-                }
+                    System.out.printf("%-4s %-44s | %-19s | %-12s | %-10s | %-1s ",((i + 1) + ". "),albums[i].getAlName(), albums[i].getArtist(),
+                    albums[i].getArtistType(), albums[i].getRelease().toString(),(df.format(albums[i].getPrice())));
+
+                    System.out.println("");
+            }
 
                 // print next possible options of user
                 System.out.print("\n[P]revious, [N]ext, [F]ilter, [O]rder, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
                 Check.checkOptionInput(input, new char[]{'P', 'N', 'F', 'O', 'E'});
-
+                System.out.println("");
+                
                 switch(input){
                     case 'P':{ // prev
                         if(startIndex == 0) throw new PageIndexException(Check.prevPageMsg);
@@ -230,6 +237,7 @@ public class Store{
         char input, albumType;
         AlbumOrder[] orders = RWcsv.readOrders(); // ensure updated orders.csv is loaded
 
+
         do{
             try{
                 // initialise indices to fetch albums from based on current page
@@ -237,22 +245,27 @@ public class Store{
                 int endIndex = Math.min(startIndex + 10, ords.length); // get min to prevent extra indices on last page
 
                 System.out.println("Page " + (page+1));
-                System.out.println(String.join(" | ", "\nRef #", "Album", "P/D", "Quant", "Buyer", "Purchased"));
+                System.out.print("     ");
+                System.out.printf("%-25s | %-44s | %-12s | %-10s | %-1s ", "Ref #", "Album", "P/D", "Quant", "Buyer", "Purchased");
+                System.out.println("");
+                System.out.println("-----------------------------------------------------------------------------------------------------------");
 
                 // for loop to print 10 Album objects at a time
                 for(int i = startIndex; i < endIndex; i++){
                     if(ords[i] instanceof PhysicalAlbumOrder) albumType = 'P';
                     else albumType = 'D';
 
-                    System.out.print((i + 1) + ". ");
-                    System.out.println(String.join(" | ", Integer.toString(ords[i].getRefID()), ords[i].getAlbum().getAlName(),
+                    System.out.printf("%-4s %-25s | %-44s | %-12s | %-10s | %-1s ",((i + 1) + ". "), Integer.toString(ords[i].getRefID()), ords[i].getAlbum().getAlName(),
                                         Character.toString(albumType), Integer.toString(ords[i].getQuantity()), ords[i].getBuyerName(),
-                                        ords[i].getDatePurchased().toString()));
+                                        ords[i].getDatePurchased().toString());
+
+                                        System.out.println("");
                 }
 
                 // print next possible options of user
                 System.out.print("\n[P]revious, [N]ext, [V]iew Album Details, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
                 Check.checkOptionInput(input, new char[]{'P', 'N', 'V', 'C', 'E'});
+                System.out.println("");
 
                 switch(input){
                     case 'P':{ // prev
@@ -348,21 +361,22 @@ public class Store{
                                     "'|...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..'\n"+
                                         "======================================================\n");
 
-                System.out.print("Please Select Your Choice > "); char menuInput = in.nextLine().charAt(0);
-                Check.checkOptionInput(menuInput, new char[]{'1', '2', '3', '4'});
+System.out.print("\nPlease Select Your Choice > "); int menuInput = in.nextInt(); in.nextLine();
+                System.out.println("");
+                System.out.print("");
                 
                 // switch case through displayMenu() inputs
                 switch(menuInput){
-                    case '1':{ // catalog
+                    case 1:{ // catalog
                         displayCatalog(catalog);
                         break;
                     }
-                    case '2':{ // orders
+                    case 2:{ // orders
                         displayOrderHistory(orders);
                         break;
                     }
-                    case '3':{ // about
-                        System.out.println("About Us");
+                    case 3:{ // about
+                        System.out.println("\nAbout Us");
 
                         System.out.println("\nHaru-Haru Store (PH) is your ultimate destination for K-pop enthusiasts in the Philippines. Immerse yourself in the world of Korean pop music with our extensive collection of both physical and digital K-pop albums. From the latest releases to timeless classics, Haru-Haru Store is your go-to haven for all things K-pop, bringing the vibrant beats and visuals of your favorite artists directly to you in the heart of the Philippines.");
 
