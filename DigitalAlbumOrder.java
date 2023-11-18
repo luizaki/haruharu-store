@@ -41,9 +41,10 @@ public class DigitalAlbumOrder extends AlbumOrder{
         System.out.println("\tBuyer Name: " + this.buyerName);
         System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
         System.out.println("\tBuyer Email: " + this.buyerEmail);
-        System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println();
+        System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println("\tHas 10% Discount: " + discount);
+        System.out.println();
         System.out.println("\tTotal Price: " + phpFormat.format(this.totalPrice));        
         System.out.println();
         System.out.println("\tDate of Purchase: " + this.datePurchased);

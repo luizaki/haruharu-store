@@ -2,7 +2,7 @@ import java.time.LocalDate;
 
 public class PhysicalAlbumOrder extends AlbumOrder{
     protected String shippingAddress;
-    protected double shippingFee = 50.0;
+    protected double shippingFee;
 
     public PhysicalAlbumOrder(Album album, int quantity, LocalDate datePurchased, String buyerName, long buyerContact, boolean discounted, String shippingAddress){
         super(album, quantity, datePurchased, buyerName, buyerContact, discounted);
@@ -10,7 +10,7 @@ public class PhysicalAlbumOrder extends AlbumOrder{
         this.shippingAddress = shippingAddress;
 
         // recalculate shipping fee (add 50 for every 5 unit quantity)
-        this.shippingFee += (50 * Math.floorDiv(this.quantity, 5));
+        this.shippingFee = (50 * Math.floorDiv(this.quantity, 5));
         calculateTotal();
     }
 
@@ -28,7 +28,7 @@ public class PhysicalAlbumOrder extends AlbumOrder{
 
     protected void calculateTotal(){
         this.subTotal = this.quantity * album.getPrice();
-        if(this.discounted) this.totalPrice = (subTotal + this.shippingFee) * discount;
+        if(this.discounted) this.totalPrice = (subTotal * discount) + this.shippingFee;
         else this.totalPrice = subTotal + this.shippingFee;
     }
 
@@ -46,10 +46,11 @@ public class PhysicalAlbumOrder extends AlbumOrder{
         System.out.println("\tBuyer Name: " + this.buyerName);
         System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
         System.out.println("\tShipping Address: " + this.shippingAddress);
+        System.out.println();
+        System.out.println("\tHas 10% Discount: " + discount);
         System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println();
         System.out.println("\tShipping Fee: " + phpFormat.format(this.shippingFee));
-        System.out.println("\tHas 10% Discount: " + discount);
         System.out.println("\tTotal Price: " + phpFormat.format(this.totalPrice));
         System.out.println();
         System.out.println("\tDate of Purchase: " + this.datePurchased);
