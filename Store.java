@@ -270,18 +270,109 @@ public class Store{
     public static void main(String[] args){
         // do displayMenu() while input is invalid
         // display menu until input is valid
+        boolean running = true;
+        Scanner in = new Scanner(System.in);
 
-        // switch case through displayMenu() inputs
-            // search available albums
-            // see available albums (displayCatalog())
-            // view purchase history
-            // log out/exit
+        while(running){ // print main menu
+                        // view and cancel album orders
+                        // about program
+                        // log out/exit
+            System.out.println("\n"+
+                                    "======================================================\n" +
+                                   ".█░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░█.\n"+
+                                   "| █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █|\n"+
+                                   "'░██░██░██░██░,..__________---_________.,░██░██░██░██░░'\n"+
+                                   "|.,.,.,.,.,.,.,.|||: Haru-Haru Store :||.,.,.,.,.,.,.,.|\n"+
+                                   "'█░██ █ █ ███░█,..---------[.]--------.,''█░██ █ █ ███░|\n"+
+                                   "|█░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░██░█|\n"+
+                                   "'-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;|'\n"+
+                                    "======================================================\n" +
+                                   "||                                                     |\n"+
+                                   "'|                                                     '\n"+
+                                   "||        [1]: View and Order Available Albums :       |\n"+
+                                   "'|                                                     '\n"+
+                                   "||        [2]: View and Cancel Orders          :       |\n"+
+                                   "'|                                                     '\n"+
+                                   "||        [3]: About                           :       |\n"+
+                                   "'|                                                     '\n"+
+                                   "||        [4]: Exit                            :       |\n"+
+                                   "'|                                                     '\n"+
+                                   "||                                                     |\n"+
+                                   "'|                                                     '\n"+
+                                   "||                                                     |\n"+
+                                   "'|...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..'\n"+
+                                    "======================================================\n");
+        try{
+            System.out.print("Please Select Your Choice:    ");
+            int menuInput = in.nextInt();
+            in.nextLine();
+            // switch case through displayMenu() inputs
+            switch(menuInput){
+                //case 1
+                case 1:{ // // view order or available albums
+                    displayCatalog(catalog);
+
+                    break;
+                }
+
+                //case 2
+                case 2:{ // view and cancel album orders
+                    displayOrderHistory(orders);
+
+                    break;
+                }
+                //case 3
+                case 3:{ // about program
+                    System.out.println("About Us");
+
+                    System.out.println("\nHaru-Haru Store (PH) is your ultimate destination for K-pop enthusiasts in the Philippines. Immerse yourself in the world of Korean pop music with our extensive collection of both physical and digital K-pop albums. From the latest releases to timeless classics, Haru-Haru Store is your go-to haven for all things K-pop, bringing the vibrant beats and visuals of your favorite artists directly to you in the heart of the Philippines.");
+
+                    System.out.println("\nStudent Programmers:" +
+                    "\n\tPalao, Maria Athaliah December G." +
+                    "\n\tSanchez, Francine Louis B.");
+
+                    System.out.println("\nContact Us:" +
+                    "\n\tEmail: haruharu_store231118@gmail.com" +
+                    "\n\tFacebook: Haru-Haru Store (PH)" +
+                    "\n\tTelephone Number: +639276578680" +
+                    "\n\nCopyright 2023 HHS100s. All Rights Reserved.");
+
+                    break;
+                }
+                //case 4
+                case 4:{ // log-out or exit program 
+                    System.out.println("Are you sure you want to quit the program? (Y/N)");
+                    char userInput = scanner.in().charAt(0);
+
+                    if (userInput == 'Y' || userInput == 'y') {
+                        System.out.println("Exiting the program. Thank you for using Haru-Haru Store!");
+                        running = false;
+                    } 
+                    else if (userInput == 'N' || userInput == 'n') {
+                        System.out.println("Continuing with the program.");
+                       // what to do here
+                    } 
+                    else {
+                        System.out.println("Invalid input. Please enter Y or N.");
+                    }
+                    scanner.close();
+                }
+                default:{ //default
+                    System.out.println("Invalid input! Try again.");
+                }
+            }
+        }
+            
+        catch(InputMismatchException e){
+            in.nextLine();
+                // exception classes go here
+                // THINGS TO THROW:
+                // Invalid Menu Input
+                // Invalid DataTypes
+                // Invalid Email
+                // Other general invalid inputs
+            
+            System.out.println("");
+        }
     }
-
-    // exception classes go here
-        // THINGS TO THROW:
-        // Invalid Menu Input
-        // Invalid DataTypes
-        // Invalid Email
-        // Other general invalid inputs
 }
