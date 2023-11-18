@@ -10,6 +10,7 @@ public class Store{
     public static void displayCatalog(Album[] albums){
         // setups
         int page = 0;
+        int maxPage = (albums.length+10-1)/10;
         boolean keepDisplaying = true;
         char input;
         
@@ -21,14 +22,14 @@ public class Store{
                 int startIndex = page * 10;
                 int endIndex = Math.min(startIndex + 10, albums.length); // get min to prevent extra indices on last page
 
-                System.out.println("\n[ PAGE " + (page+1) + " ]\n");
-                System.out.printf("     %-44s | %-19s | %-12s | %-10s | %-1s ","Name", "Artist", "Artist Type", "Release", "Price");
+                System.out.println("\n[ PAGE " + (page+1) + " / " + maxPage + " ]\n");
+                System.out.printf("     %-43s | %-19s | %-12s | %-10s | %-1s ","Name", "Artist", "Artist Type", "Release", "Price");
                 System.out.println("");
                 System.out.println("------------------------------------------------------------------------------------------------------------------");
 
                 // for loop to print 10 Album objects at a time
                 for(int i = startIndex; i < endIndex; i++){
-                    System.out.printf("%-4s %-44s | %-19s | %-12s | %-10s | %-1s ",((i + 1) + ". "),albums[i].getAlName(), albums[i].getArtist(),
+                    System.out.printf("%-4s %-43s | %-19s | %-12s | %-10s | %-1s ",((i + 1) + ". "),albums[i].getAlName(), albums[i].getArtist(),
                     albums[i].getArtistType(), albums[i].getRelease().toString(),(df.format(albums[i].getPrice())));
 
                     System.out.println("");
@@ -41,12 +42,12 @@ public class Store{
                 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0) throw new PageIndexException(Check.prevPageMsg);
+                        if(startIndex == 0) page = maxPage; // go to last page if Prev is on page 1
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == albums.length) throw new PageIndexException(Check.nextPageMsg);
+                        if(endIndex == albums.length) page = 0; // go to page 1 if Next is on last page
                         else page++;
                         break;
                     }
@@ -56,9 +57,10 @@ public class Store{
                         break;
                     }
                     case 'O':{ // order
-                        System.out.print("Input the number of the album you're ordering > "); int index = in.nextInt(); in.nextLine();
-
-                        if(index > albums.length) throw new DataInputException(Check.oobIndexMsg);
+                        System.out.print("Input the number of the album you're ordering > "); String indexInput = in.nextLine();
+                        
+                        int index = Integer.parseInt(indexInput);
+                        if(index > albums.length || index < 1) throw new DataInputException(Check.oobIndexMsg);
                         
                         if(albums.length == catalog.length) keepDisplaying = placeOrder(index - 1); // if displayCatalog is currently displaying catalog
                         else keepDisplaying = placeOrder(Arrays.asList(catalog).indexOf(albums[index - 1]));
@@ -70,13 +72,10 @@ public class Store{
                     }
                 }
             }
-            catch(InputMismatchException mali){
-                System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
+            catch(NumberFormatException mali){
+                System.out.println("Error (NumberFormatException) : " + Check.inputMismatchMsg);
             }
             catch(OptionInputException mali){
-                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
-            }
-            catch(PageIndexException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
             catch(DataInputException mali){
@@ -150,12 +149,13 @@ public class Store{
         boolean discounted = false;
         AlbumOrder order = null;
 
-        System.out.println("\nYou will be ordering the following (feel free to type 'cancel' any time)\n");
+        System.out.println("\nYou will be ordering the following:\n");
         album.display();
 
         try{ // inputs incl. cancel typing to return to display
             // physical or digital
-            System.out.print("\nWould you like [P]hysical or [D]igital copies? > "); input = in.nextLine();
+            System.out.println("\n[Input Details] (feel free to type 'cancel' any time)");
+            System.out.print("\tWould you like [P]hysical or [D]igital copies? > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else{
                 albumType = input.toUpperCase().charAt(0);                    
@@ -163,22 +163,22 @@ public class Store{
             }
 
             // quantity
-            System.out.print("Input quantity > "); input = in.nextLine();
+            System.out.print("\tInput quantity > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else quantity = Integer.parseInt(input);
 
             // name
-            System.out.print("Input full name > "); input = in.nextLine();
+            System.out.print("\tInput full name > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else buyerName = input;
 
             // contact num
-            System.out.print("Input contact # > "); input = in.nextLine();
+            System.out.print("\tInput contact # > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else buyerContact = Long.parseLong(input);
 
             // discount
-            System.out.print("Are you a student/senior citizen/PWD? [Y/N] > "); input = in.nextLine();
+            System.out.print("\tAre you a student/senior citizen/PWD? [Y/N] > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else{
                 hasDiscount = input.toUpperCase().charAt(0);
@@ -190,14 +190,14 @@ public class Store{
 
             // branch to physical and digital, check inputs and create Object
             if(albumType == 'P'){
-                System.out.print("Input shipping address > "); shippingAddress = in.nextLine();
+                System.out.print("\tInput shipping address > "); shippingAddress = in.nextLine();
 
                 Check.checkOrderInput(albumType, quantity, buyerContact, shippingAddress);
 
                 order = new PhysicalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, discounted, shippingAddress);
             }
             else if (albumType == 'D'){
-                System.out.print("Input email > "); buyerEmail = in.nextLine();
+                System.out.print("\tInput email > "); buyerEmail = in.nextLine();
 
                 Check.checkOrderInput(albumType, quantity, buyerContact, buyerEmail);
 
@@ -225,8 +225,8 @@ public class Store{
             }
             else if(confirm == 'N') returnToDisplay = true; // go back to displayCatalog()
         }
-        catch(InputMismatchException mali){
-            System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
+        catch(NumberFormatException mali){
+            System.out.println("Error (NumberFormatException) : " + Check.inputMismatchMsg);
         }
         catch(OptionInputException mali){
             System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
@@ -241,9 +241,10 @@ public class Store{
     public static void displayOrderHistory(AlbumOrder[] ords){
         // setups
         int page = 0;
+        int maxPage = (ords.length+10-1)/10;
         boolean keepDisplaying = true;
         char input, albumType;
-        AlbumOrder[] orders = RWcsv.readOrders(); // ensure updated orders.csv is loaded
+        AlbumOrder[] updated = null;
 
         do{
             try{
@@ -251,7 +252,7 @@ public class Store{
                 int startIndex = page * 10;
                 int endIndex = Math.min(startIndex + 10, ords.length); // get min to prevent extra indices on last page
 
-                System.out.println("\n[ PAGE " + (page+1) + " ]\n");
+                System.out.println("\n[ PAGE " + (page+1) + " / " + maxPage + " ]\n");
                 System.out.printf("     %-8s | %-43s | %-3s | %-8s | %-18s | %-1s ", "Ref #", "Album", "P/D", "Quantity", "Buyer", "Purchased");
                 System.out.println("");
                 System.out.println("------------------------------------------------------------------------------------------------------------------");
@@ -269,32 +270,57 @@ public class Store{
                 }
 
                 // print next possible options of user
-                System.out.print("\n[P]revious, [N]ext, [V]iew Order Details, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
-                Check.checkOptionInput(input, new char[]{'P', 'N', 'V', 'C', 'E'});
+                System.out.print("\n[P]revious, [N]ext, [V]iew Details, [F]ilter, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
+                Check.checkOptionInput(input, new char[]{'P', 'N', 'V', 'F', 'C', 'E'});
                 System.out.println("");
 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0) throw new PageIndexException(Check.prevPageMsg);
+                        if(startIndex == 0) page = maxPage; // go to last page if Prev is on page 1
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == ords.length) throw new PageIndexException(Check.nextPageMsg);
+                        if(endIndex == ords.length) page = 0; // go to page 1 if Next is on last page
                         else page++;
                         break;
                     }
                     case 'V':{ // view order details
-                        System.out.print("Input the number of the order you'd like to view > "); int index = in.nextInt(); in.nextLine();
-                        if(index > ords.length) throw new DataInputException(Check.oobIndexMsg);
+                        System.out.print("Input the number of the order you'd like to view > "); String indexInput = in.nextLine();
+                        
+                        int index = Integer.parseInt(indexInput);
+                        if(index > ords.length || index < 1) throw new DataInputException(Check.oobIndexMsg);
 
-                        if(ords.length == orders.length) orders[index-1].display();
-                        else ords[Arrays.asList(orders).indexOf(ords[index - 1])].display();
+                        if(ords.length == orders.length){System.out.println(); ords[index - 1].display();}
+                        else orders[Arrays.asList(orders).indexOf(ords[index - 1])].display();
+                        break;
+                    }
+                    case 'F':{ // filter
+                        System.out.print("Would you like to filter orders by [P]hysical, [D]igital, or [R]eset? > "); char type = in.nextLine().toUpperCase().charAt(0);
+                        Check.checkOptionInput(type, new char[]{'P', 'D', 'R'});
+
+                        // filter based on physical/digital
+                        if(type == 'P')
+                            updated = Arrays.stream(orders)
+                                    .filter(a -> a instanceof PhysicalAlbumOrder)
+                                    .toArray(AlbumOrder[]::new);
+                        else if(type == 'D')
+                            updated = Arrays.stream(orders)
+                                    .filter(a -> a instanceof DigitalAlbumOrder)
+                                    .toArray(AlbumOrder[]::new);
+                        else if(type == 'R'){
+                            updated = RWcsv.readOrders();
+                        }
+                        
+                        keepDisplaying = false; // aovid nested displays
+                        displayOrderHistory(updated);
                         break;
                     }
                     case 'C':{ // cancel order
-                        System.out.print("Input the number of the order you're cancelling > "); int index = in.nextInt(); in.nextLine();
-                        if(index > ords.length) throw new DataInputException(Check.oobIndexMsg);
+                        System.out.print("Input the number of the order you're cancelling > "); String indexInput = in.nextLine();
+                        
+                        int index = Integer.parseInt(indexInput);
+                        if(index > ords.length || index < 1) throw new DataInputException(Check.oobIndexMsg);
 
                         if(ords.length == orders.length) keepDisplaying = cancelOrder(index - 1);
                         else keepDisplaying = cancelOrder(Arrays.asList(orders).indexOf(ords[index - 1]));
@@ -306,10 +332,13 @@ public class Store{
                     }
                 }
             }
-            catch(OptionInputException mali){
-                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            catch(InputMismatchException mali){
+                System.out.println("Error (InputMismatchException) : " + Check.inputMismatchMsg);
             }
-            catch(PageIndexException mali){
+            catch(NumberFormatException mali){
+                System.out.println("Error (NumberFormatException) : " + Check.inputMismatchMsg);
+            }
+            catch(OptionInputException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
             catch(DataInputException mali){
@@ -455,11 +484,6 @@ public class Store{
   // for menu/char inputs
 class OptionInputException extends Exception{
     OptionInputException(String msg){super(msg);}
-}
-
-  // for next/prev page inputs
-class PageIndexException extends Exception{
-    PageIndexException(String msg){super(msg);}
 }
 
   // for order inputs

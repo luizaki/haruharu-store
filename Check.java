@@ -3,10 +3,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Check {
-    static String inputMismatchMsg = "Invalid data type.";
-    static String prevPageMsg = "You cannot move any behind. Returning to page 1.";
-    static String nextPageMsg = "You cannot move any further. Returning to last page.";
-    static String oobIndexMsg = "Invalid input. There is no item listed at that number.";
+    final static String inputMismatchMsg = "Invalid data type.";
+    final static String oobIndexMsg = "Invalid input. There is no item listed at that number.";
+    final static String regex = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"; // regex from https://howtodoinjava.com/
 
     public static void checkOptionInput(char input, char[] validInputs) throws OptionInputException{
         boolean flag = false;
@@ -70,12 +69,10 @@ public class Check {
 
         // branch if String input is address or email
         if(albumType == 'P'){ // check address
+            if(addEmail.matches(regex)) throw new OrderInputException("Invalid address. Do not input an email as your shipping address.");
             if(addEmail.contains(",")) throw new OrderInputException("Invalid address. Address should not contain commas (replace with ';' if needed)");
         }
-        else if(albumType == 'D'){
-            // regex from https://howtodoinjava.com/
-            String regex = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-
+        else if(albumType == 'D'){ // check email
             if(!(addEmail.matches(regex))) throw new OrderInputException("Invalid email. Please use a working email address.");
         }
     }
