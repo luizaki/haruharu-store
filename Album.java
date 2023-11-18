@@ -8,7 +8,7 @@ public class Album{
     private LocalDate release;
     private double price;
 
-    protected static DecimalFormat phpFormat = new DecimalFormat("Php #,##0.00");
+    protected static final DecimalFormat phpFormat = new DecimalFormat("Php #,##0.00");
 
     // constructor
     public Album(String alName, String artist, String artistType, LocalDate release, double price){

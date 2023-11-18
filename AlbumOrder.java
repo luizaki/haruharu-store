@@ -14,9 +14,9 @@ public abstract class AlbumOrder{
     protected boolean discounted;
     protected int refID;
 
-    protected static double discount = 0.9; // 10% but translates to 90% of subTotal
-    protected static DecimalFormat phpFormat = new DecimalFormat("Php #,##0.00");
-    protected static DecimalFormat contactFormat = new DecimalFormat("'0'##########");
+    protected static final double discount = 0.9; // 10% but translates to 90% of subTotal
+    protected static final DecimalFormat phpFormat = new DecimalFormat("Php #,##0.00");
+    protected static final DecimalFormat contactFormat = new DecimalFormat("'0'##########");
 
     // constructor
     public AlbumOrder(Album album, int quantity, LocalDate datePurchased, String buyerName, long buyerContact, boolean discounted){
