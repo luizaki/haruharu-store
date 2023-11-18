@@ -342,7 +342,7 @@ public class Store{
                 //case 4
                 case 4:{ // log-out or exit program 
                     System.out.println("Are you sure you want to quit the program? (Y/N)");
-                    char userInput = scanner.in().charAt(0);
+                    char userInput = in.nextLine().charAt(0);
 
                     if (userInput == 'Y' || userInput == 'y') {
                         System.out.println("Exiting the program. Thank you for using Haru-Haru Store!");
@@ -350,7 +350,6 @@ public class Store{
                     } 
                     else if (userInput == 'N' || userInput == 'n') {
                         System.out.println("Continuing with the program.");
-                       // what to do here
                     } 
                     else {
                         System.out.println("Invalid input. Please enter Y or N.");
@@ -362,17 +361,10 @@ public class Store{
                 }
             }
         }
-            
-        catch(InputMismatchException e){
-            in.nextLine();
-                // exception classes go here
-                // THINGS TO THROW:
-                // Invalid Menu Input
-                // Invalid DataTypes
-                // Invalid Email
-                // Other general invalid inputs
-            
-            System.out.println("");
-        }
-    }
-}
+
+
+    // exception classes go here
+        // THINGS TO THROW:
+        // Invalid Menu Input
+        // Invalid DataTypes
+        // Invalid Email
