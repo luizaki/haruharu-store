@@ -28,10 +28,11 @@ public class Album{
 
     // temporary display method
     public void display(){
-        System.out.println("Album Name: " + this.alName);
-        System.out.println("Aritst: " + this.artist);
-        System.out.println("Artist Type: " + this.artistType);
-        System.out.println("Release Date: " + this.release);
-        System.out.println("Unit Price: " + phpFormat.format(this.price));
+        System.out.println("[Displaying Album Details]");
+        System.out.println("\tAlbum Name: " + this.alName);
+        System.out.println("\tAritst: " + this.artist);
+        System.out.println("\tArtist Type: " + this.artistType);
+        System.out.println("\tRelease Date: " + this.release);
+        System.out.println("\tUnit Price: " + phpFormat.format(this.price));
     }
 }

@@ -1,5 +1,6 @@
 import java.util.*;
 import java.time.LocalDate;
+import java.text.DecimalFormat;
 
 public class Store{
     static Scanner in = new Scanner(System.in);
@@ -12,7 +13,7 @@ public class Store{
         boolean keepDisplaying = true;
         char input;
         
-        DecimalFormat df = new DecimalFormat("#.##");
+        DecimalFormat df = new DecimalFormat("Php #,##0.00");
 
         do{
             try{
@@ -20,11 +21,10 @@ public class Store{
                 int startIndex = page * 10;
                 int endIndex = Math.min(startIndex + 10, albums.length); // get min to prevent extra indices on last page
 
-                System.out.println("Page " + (page+1));
-                System.out.print("     ");
-                System.out.printf("%-44s | %-19s | %-12s | %-10s | %-1s ","Name", "Artist", "Artist Type", "Release", "Price");
+                System.out.println("\n[ PAGE " + (page+1) + " ]\n");
+                System.out.printf("     %-44s | %-19s | %-12s | %-10s | %-1s ","Name", "Artist", "Artist Type", "Release", "Price");
                 System.out.println("");
-                System.out.println("-----------------------------------------------------------------------------------------------------------");
+                System.out.println("------------------------------------------------------------------------------------------------------------------");
 
                 // for loop to print 10 Album objects at a time
                 for(int i = startIndex; i < endIndex; i++){
@@ -57,6 +57,8 @@ public class Store{
                     }
                     case 'O':{ // order
                         System.out.print("Input the number of the album you're ordering > "); int index = in.nextInt(); in.nextLine();
+
+                        if(index > albums.length) throw new DataInputException(Check.oobIndexMsg);
                         
                         if(albums.length == catalog.length) keepDisplaying = placeOrder(index - 1); // if displayCatalog is currently displaying catalog
                         else keepDisplaying = placeOrder(Arrays.asList(catalog).indexOf(albums[index - 1]));
@@ -68,10 +70,16 @@ public class Store{
                     }
                 }
             }
+            catch(InputMismatchException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
+            }
             catch(OptionInputException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
             catch(PageIndexException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            }
+            catch(DataInputException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
         } while(keepDisplaying);
@@ -170,7 +178,7 @@ public class Store{
             else buyerContact = Long.parseLong(input);
 
             // discount
-            System.out.print("Are you a student/senior citizen? [Y/N] > "); input = in.nextLine();
+            System.out.print("Are you a student/senior citizen/PWD? [Y/N] > "); input = in.nextLine();
             if(input.toLowerCase().equals("cancel")) return true;
             else{
                 hasDiscount = input.toUpperCase().charAt(0);
@@ -237,25 +245,23 @@ public class Store{
         char input, albumType;
         AlbumOrder[] orders = RWcsv.readOrders(); // ensure updated orders.csv is loaded
 
-
         do{
             try{
                 // initialise indices to fetch albums from based on current page
                 int startIndex = page * 10;
                 int endIndex = Math.min(startIndex + 10, ords.length); // get min to prevent extra indices on last page
 
-                System.out.println("Page " + (page+1));
-                System.out.print("     ");
-                System.out.printf("%-25s | %-44s | %-12s | %-10s | %-1s ", "Ref #", "Album", "P/D", "Quant", "Buyer", "Purchased");
+                System.out.println("\n[ PAGE " + (page+1) + " ]\n");
+                System.out.printf("     %-8s | %-43s | %-3s | %-8s | %-18s | %-1s ", "Ref #", "Album", "P/D", "Quantity", "Buyer", "Purchased");
                 System.out.println("");
-                System.out.println("-----------------------------------------------------------------------------------------------------------");
+                System.out.println("------------------------------------------------------------------------------------------------------------------");
 
                 // for loop to print 10 Album objects at a time
                 for(int i = startIndex; i < endIndex; i++){
                     if(ords[i] instanceof PhysicalAlbumOrder) albumType = 'P';
                     else albumType = 'D';
 
-                    System.out.printf("%-4s %-25s | %-44s | %-12s | %-10s | %-1s ",((i + 1) + ". "), Integer.toString(ords[i].getRefID()), ords[i].getAlbum().getAlName(),
+                    System.out.printf("%-4s %-8s | %-43s | %-3s | %-8s | %-18s | %-1s ",((i + 1) + ". "), Integer.toString(ords[i].getRefID()), ords[i].getAlbum().getAlName(),
                                         Character.toString(albumType), Integer.toString(ords[i].getQuantity()), ords[i].getBuyerName(),
                                         ords[i].getDatePurchased().toString());
 
@@ -263,7 +269,7 @@ public class Store{
                 }
 
                 // print next possible options of user
-                System.out.print("\n[P]revious, [N]ext, [V]iew Album Details, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
+                System.out.print("\n[P]revious, [N]ext, [V]iew Order Details, [C]ancel Order, [E]xit > "); input = in.nextLine().toUpperCase().charAt(0);
                 Check.checkOptionInput(input, new char[]{'P', 'N', 'V', 'C', 'E'});
                 System.out.println("");
 
@@ -278,12 +284,18 @@ public class Store{
                         else page++;
                         break;
                     }
-                    case 'V':{ // view album details
-                        ords[page].getAlbum().display();
+                    case 'V':{ // view order details
+                        System.out.print("Input the number of the order you'd like to view > "); int index = in.nextInt(); in.nextLine();
+                        if(index > ords.length) throw new DataInputException(Check.oobIndexMsg);
+
+                        if(ords.length == orders.length) orders[index-1].display();
+                        else ords[Arrays.asList(orders).indexOf(ords[index - 1])].display();
                         break;
                     }
                     case 'C':{ // cancel order
-                        System.out.print("Input the number of the order you're cancelling (1-10) > "); int index = in.nextInt(); in.nextLine();
+                        System.out.print("Input the number of the order you're cancelling > "); int index = in.nextInt(); in.nextLine();
+                        if(index > ords.length) throw new DataInputException(Check.oobIndexMsg);
+
                         if(ords.length == orders.length) keepDisplaying = cancelOrder(index - 1);
                         else keepDisplaying = cancelOrder(Arrays.asList(orders).indexOf(ords[index - 1]));
                         break;
@@ -300,33 +312,56 @@ public class Store{
             catch(PageIndexException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
+            catch(DataInputException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            }
         } while(keepDisplaying);
     }
 
     public static boolean cancelOrder(int index){
         AlbumOrder[] orders = RWcsv.readOrders();
+        String input;
         int confirm = 0;
+        boolean returnToDisplay = true;
+
         int refID = orders[index].getRefID();
         System.out.println("You are about to cancel the following order:\n");
         orders[index].display();
 
-        do{
+        while(true){
             try{
-                System.out.print("To confirm, please re-type the reference ID > ");
-                confirm = in.nextInt(); in.nextLine();
+                System.out.print("\nTo confirm, please type the reference ID or 'cancel' > "); input = in.nextLine();
+                
+                if(input.equals("cancel")){
+                    returnToDisplay = true;
+                    break;
+                }
+
+                confirm = Integer.parseInt(input);
+                if(confirm != refID){
+                    throw new DataInputException("Reference ID did not match.");
+                }
+                else{
+                    ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
+                    orderList.remove(orders[index]);
+                    AlbumOrder[] updatedOrderList = orderList.toArray(new AlbumOrder[orderList.size()]);
+                    RWcsv.writeOrders(updatedOrderList);
+
+                    System.out.println("Successfully cancelled Order #" + refID);
+
+                    returnToDisplay = false;
+                    break;
+                }
             }
             catch(InputMismatchException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
+            }
+            catch(DataInputException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
-        } while(confirm != refID);
+        }
 
-        ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
-        orderList.remove(orders[index]);
-        AlbumOrder[] updatedOrderList = orderList.toArray(new AlbumOrder[orderList.size()]);
-        RWcsv.writeOrders(updatedOrderList);
-
-        System.out.println("Successfully cancelled Order #" + refID);
-        return false; // exit keepDisplaying
+        return returnToDisplay; // exit keepDisplaying
     }
 
     public static void main(String[] args){
@@ -361,28 +396,28 @@ public class Store{
                                     "'|...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..'\n"+
                                         "======================================================\n");
 
-System.out.print("\nPlease Select Your Choice > "); int menuInput = in.nextInt(); in.nextLine();
+                System.out.print("\nPlease Select Your Choice > "); char menuInput = in.nextLine().charAt(0);
+                Check.checkOptionInput(menuInput, new char[]{'1', '2', '3', '4'});
                 System.out.println("");
-                System.out.print("");
                 
                 // switch case through displayMenu() inputs
                 switch(menuInput){
-                    case 1:{ // catalog
+                    case '1':{ // catalog
                         displayCatalog(catalog);
                         break;
                     }
-                    case 2:{ // orders
-                        displayOrderHistory(orders);
+                    case '2':{ // orders
+                        displayOrderHistory(RWcsv.readOrders());
                         break;
                     }
-                    case 3:{ // about
+                    case '3':{ // about
                         System.out.println("\nAbout Us");
 
                         System.out.println("\nHaru-Haru Store (PH) is your ultimate destination for K-pop enthusiasts in the Philippines. Immerse yourself in the world of Korean pop music with our extensive collection of both physical and digital K-pop albums. From the latest releases to timeless classics, Haru-Haru Store is your go-to haven for all things K-pop, bringing the vibrant beats and visuals of your favorite artists directly to you in the heart of the Philippines.");
 
                         System.out.println("\nStudent Programmers:" +
                         "\n\tPalao, Maria Athaliah December G." +
-                        "\n\tSanchez, Francine Louis B.");
+                        "\n\tSanchez, Francine Louise B.");
 
                         System.out.println("\nContact Us:" +
                         "\n\tEmail: haruharu_store231118@gmail.com" +
@@ -405,6 +440,9 @@ System.out.print("\nPlease Select Your Choice > "); int menuInput = in.nextInt()
                         }
                     }
                 }
+            }
+            catch(InputMismatchException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
             }
             catch(OptionInputException mali){
                 System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());

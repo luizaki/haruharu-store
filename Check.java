@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class Check {
     static String inputMismatchMsg = "Invalid data type.";
     static String prevPageMsg = "You cannot move any behind. Returning to page 1.";
     static String nextPageMsg = "You cannot move any further. Returning to last page.";
+    static String oobIndexMsg = "Invalid input. There is no item listed at that number.";
 
     public static void checkOptionInput(char input, char[] validInputs) throws OptionInputException{
         boolean flag = false;
@@ -70,14 +70,13 @@ public class Check {
 
         // branch if String input is address or email
         if(albumType == 'P'){ // check address
-            if(addEmail.contains(",")) throw new OrderInputException("Invalid address. Address should not contain commas (replace with ';') if needed");
+            if(addEmail.contains(",")) throw new OrderInputException("Invalid address. Address should not contain commas (replace with ';' if needed)");
         }
         else if(albumType == 'D'){
             // regex from https://howtodoinjava.com/
             String regex = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-            Pattern pattern = Pattern.compile(regex);
 
-            if(!(pattern.matcher(addEmail).matches())) throw new OrderInputException("Invalid email. Please use a working email address.");
+            if(!(addEmail.matches(regex))) throw new OrderInputException("Invalid email. Please use a working email address.");
         }
     }
 

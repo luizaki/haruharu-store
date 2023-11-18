@@ -33,9 +33,15 @@ public class PhysicalAlbumOrder extends AlbumOrder{
     }
 
     public void display(){
+        String discount;
+        if(discounted) discount = "Yes";
+        else discount = "No";
+
         System.out.println("[Displaying Order Ref. " + refID + "]");
         System.out.println("\tAlbum: " + album.getAlName() + " (" + album.getRelease() + ")");
         System.out.println("\tArtist: " + album.getArtist() + " (" + album.getArtistType() + ")");
+        System.out.println("\tUnit Price: " + phpFormat.format(album.getPrice()));
+        System.out.println("\tQuantity: " + this.quantity);
         System.out.println();
         System.out.println("\tBuyer Name: " + this.buyerName);
         System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
@@ -43,7 +49,7 @@ public class PhysicalAlbumOrder extends AlbumOrder{
         System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println();
         System.out.println("\tShipping Fee: " + phpFormat.format(this.shippingFee));
-        System.out.println("\tHas 10% Discount: " + this.discounted);
+        System.out.println("\tHas 10% Discount: " + discount);
         System.out.println("\tTotal Price: " + phpFormat.format(this.totalPrice));
         System.out.println();
         System.out.println("\tDate of Purchase: " + this.datePurchased);

@@ -31,6 +31,8 @@ public class DigitalAlbumOrder extends AlbumOrder{
         System.out.println("[Displaying Order Ref. " + refID + "]");
         System.out.println("\tAlbum: " + album.getAlName() + " (" + album.getRelease() + ")");
         System.out.println("\tArtist: " + album.getArtist() + " (" + album.getArtistType() + ")");
+        System.out.println("\tUnit Price: " + phpFormat.format(album.getPrice()));
+        System.out.println("\tQuantity: " + this.quantity);
         System.out.println();
         System.out.println("\tBuyer Name: " + this.buyerName);
         System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
