@@ -6,7 +6,7 @@ public class DigitalAlbumOrder extends AlbumOrder{
     public DigitalAlbumOrder(Album album, int quantity, LocalDate datePurchased, String buyerName, long buyerContact, boolean discounted, String buyerEmail){
         super(album, quantity, datePurchased, buyerName, buyerContact, discounted);
 
-        this.buyerEmail = buyerEmail; // verifier TBD
+        this.buyerEmail = buyerEmail;
         calculateTotal();
     }
 
@@ -33,7 +33,7 @@ public class DigitalAlbumOrder extends AlbumOrder{
         System.out.println("\tArtist: " + album.getArtist() + " (" + album.getArtistType() + ")");
         System.out.println();
         System.out.println("\tBuyer Name: " + this.buyerName);
-        System.out.println("\tBuyer Contact: " + this.buyerContact);
+        System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
         System.out.println("\tBuyer Email: " + this.buyerEmail);
         System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println();

@@ -38,7 +38,7 @@ public class PhysicalAlbumOrder extends AlbumOrder{
         System.out.println("\tArtist: " + album.getArtist() + " (" + album.getArtistType() + ")");
         System.out.println();
         System.out.println("\tBuyer Name: " + this.buyerName);
-        System.out.println("\tBuyer Contact: " + this.buyerContact);
+        System.out.println("\tBuyer Contact: " + contactFormat.format(this.buyerContact));
         System.out.println("\tShipping Address: " + this.shippingAddress);
         System.out.println("\tSubtotal: " + phpFormat.format(this.subTotal));
         System.out.println();

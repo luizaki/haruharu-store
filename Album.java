@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.time.*;
 
 public class Album{
@@ -6,6 +7,8 @@ public class Album{
     private String artistType;
     private LocalDate release;
     private double price;
+
+    protected static DecimalFormat phpFormat = new DecimalFormat("Php #,##0.00");
 
     // constructor
     public Album(String alName, String artist, String artistType, LocalDate release, double price){
@@ -29,6 +32,6 @@ public class Album{
         System.out.println("Aritst: " + this.artist);
         System.out.println("Artist Type: " + this.artistType);
         System.out.println("Release Date: " + this.release);
-        System.out.println("Unit Price: " + this.price);
+        System.out.println("Unit Price: " + phpFormat.format(this.price));
     }
 }
