@@ -34,16 +34,12 @@ public class Store{
 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0){
-                            // throw error?
-                        }
+                        if(startIndex == 0) throw new PageIndexException(Check.prevPageMsg);
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == albums.length){
-                            // throw error?
-                        }
+                        if(endIndex == albums.length) throw new PageIndexException(Check.nextPageMsg);
                         else page++;
                         break;
                     }
@@ -66,7 +62,10 @@ public class Store{
                 }
             }
             catch(OptionInputException mali){
-                System.out.println("Error : " + mali.getMessage());
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            }
+            catch(PageIndexException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
         } while(keepDisplaying);
     }
@@ -80,31 +79,18 @@ public class Store{
                 case 'A':{ // artist
                     System.out.print("Input name of artist > "); String artist = in.nextLine().toUpperCase();
 
-                    // retrieve list of artists in catalog and remove dupes
-                    ArrayList<String> names = new ArrayList<String>();
-                    for(Album al : catalog) names.add(al.getArtist().toUpperCase());
-                    Set<String> unique = new HashSet<String>(names);
-                    names.clear(); names.addAll(unique);
+                    Check.matchArtist(artist);
 
-                    // check if match exists
-                    boolean match = false;
-                    for(int j = 0; j < names.size(); j++){
-                        if(artist.equals(names.get(j))) match = true;
-                    }
-
-                    if(match){
-                        Album[] updated = Arrays.stream(catalog)
-                                                .filter(a -> artist.equals(a.getArtist().toUpperCase()))
-                                                .toArray(Album[]::new);
-                        displayCatalog(updated);
-                    }
-                    else{
-                        // throw error?
-                    }
+                    // proceed to filter if no errors
+                    Album[] updated = Arrays.stream(catalog)
+                                    .filter(a -> artist.equals(a.getArtist().toUpperCase()))
+                                    .toArray(Album[]::new);
+                    displayCatalog(updated);
                     break;
                 }
                 case 'T':{ // type
                     System.out.print("Input [BG] Boy Group, [GG] Girl Group, [CE] CO-ED Group, [BS] Boy Soloist, [GS] Girl Soloist > "); String type = in.nextLine().toUpperCase();
+                    Check.checkOptionInput(type, new String[]{"BG", "GG", "CE", "BS", "GS"});
 
                     // hashmap of types and their input codes
                     HashMap<String, String> types = new HashMap<String, String>();
@@ -126,8 +112,14 @@ public class Store{
                 }
             }
         }
+        // caught exceptions will go back to displaying default catalog
         catch(OptionInputException mali){
-            System.out.println("Error : " + mali.getMessage());
+            System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            displayCatalog(catalog);
+        }
+        catch(DataInputException mali){
+            System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            displayCatalog(catalog);
         }
     }
 
@@ -146,80 +138,86 @@ public class Store{
         System.out.println("\nYou will be ordering the following (feel free to type 'cancel' any time)\n");
         album.display();
 
-        try{
-            // inputs incl. cancel typing to return to display
-            while(true){
-                // physical or digital
-                System.out.print("\nWould you like [P]hysical or [D]igital copies? > "); input = in.nextLine();
-                if(input.toLowerCase().equals("cancel")) return true;
-                else{
-                    albumType = input.toUpperCase().charAt(0);                    
-                    Check.checkOptionInput(albumType, new char[]{'P', 'D'});
-                }
-
-                // quantity
-                System.out.print("Input quantity > "); input = in.nextLine();
-                if(input.toLowerCase().equals("cancel")) return true;
-                else quantity = Integer.parseInt(input);
-
-                // name
-                System.out.print("Input full name > "); input = in.nextLine();
-                if(input.toLowerCase().equals("cancel")) return true;
-                else buyerName = input;
-
-                // contact num
-                System.out.print("Input contact # > "); input = in.nextLine();
-                if(input.toLowerCase().equals("cancel")) return true;
-                else buyerContact = Long.parseLong(input);
-
-                // discount
-                System.out.print("Are you a student/senior citizen? [Y/N] > "); input = in.nextLine();
-                if(input.toLowerCase().equals("cancel")) return true;
-                else{
-                    hasDiscount = input.toUpperCase().charAt(0);
-                    Check.checkOptionInput(hasDiscount);
-
-                    if(hasDiscount == 'Y') discounted = true;
-                    else if(hasDiscount == 'N') discounted = false;
-                }
-
-                // branch to physical and digital
-                if(albumType == 'P'){
-                    System.out.print("Input shipping address > "); shippingAddress = in.nextLine();
-                    order = new PhysicalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, discounted, shippingAddress);
-                }
-                else if (albumType == 'D'){
-                    System.out.print("Input email > "); buyerEmail = in.nextLine();
-                    order = new DigitalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, discounted, buyerEmail);
-                }
-
-                System.out.println();
-                order.display();
-                System.out.print("\nConfirm order? [Y/N] > "); confirm = in.nextLine().toUpperCase().charAt(0);
-                Check.checkOptionInput(confirm);
-
-                // adding the new order to orders.csv
-                if(confirm == 'Y'){
-                    // fetch updated orders
-                    orders = RWcsv.readOrders();
-
-                    // convert orders to arraylist, add the new order, and convert back to array to write back to orders.csv
-                    ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
-                    orderList.add(order);
-                    AlbumOrder[] updatedOrderList = orderList.toArray(new AlbumOrder[orderList.size()]);
-                    RWcsv.writeOrders(updatedOrderList);
-
-                    System.out.println("Order #" + order.getRefID() + " successfully added!");
-                    returnToDisplay = false; // end displayCatalog()
-                }
-                else if(confirm == 'N') returnToDisplay = true; // go back to displayCatalog()
+        try{ // inputs incl. cancel typing to return to display
+            // physical or digital
+            System.out.print("\nWould you like [P]hysical or [D]igital copies? > "); input = in.nextLine();
+            if(input.toLowerCase().equals("cancel")) return true;
+            else{
+                albumType = input.toUpperCase().charAt(0);                    
+                Check.checkOptionInput(albumType, new char[]{'P', 'D'});
             }
+
+            // quantity
+            System.out.print("Input quantity > "); input = in.nextLine();
+            if(input.toLowerCase().equals("cancel")) return true;
+            else quantity = Integer.parseInt(input);
+
+            // name
+            System.out.print("Input full name > "); input = in.nextLine();
+            if(input.toLowerCase().equals("cancel")) return true;
+            else buyerName = input;
+
+            // contact num
+            System.out.print("Input contact # > "); input = in.nextLine();
+            if(input.toLowerCase().equals("cancel")) return true;
+            else buyerContact = Long.parseLong(input);
+
+            // discount
+            System.out.print("Are you a student/senior citizen? [Y/N] > "); input = in.nextLine();
+            if(input.toLowerCase().equals("cancel")) return true;
+            else{
+                hasDiscount = input.toUpperCase().charAt(0);
+                Check.checkOptionInput(hasDiscount);
+
+                if(hasDiscount == 'Y') discounted = true;
+                else if(hasDiscount == 'N') discounted = false;
+            }
+
+            // branch to physical and digital, check inputs and create Object
+            if(albumType == 'P'){
+                System.out.print("Input shipping address > "); shippingAddress = in.nextLine();
+
+                Check.checkOrderInput(albumType, quantity, buyerContact, shippingAddress);
+
+                order = new PhysicalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, discounted, shippingAddress);
+            }
+            else if (albumType == 'D'){
+                System.out.print("Input email > "); buyerEmail = in.nextLine();
+
+                Check.checkOrderInput(albumType, quantity, buyerContact, buyerEmail);
+
+                order = new DigitalAlbumOrder(album, quantity, LocalDate.now(), buyerName, buyerContact, discounted, buyerEmail);
+            }
+
+            System.out.println();
+            order.display();
+            System.out.print("\nConfirm order? [Y/N] > "); confirm = in.nextLine().toUpperCase().charAt(0);
+            Check.checkOptionInput(confirm);
+
+            // adding the new order to orders.csv
+            if(confirm == 'Y'){
+                // fetch updated orders
+                orders = RWcsv.readOrders();
+
+                // convert orders to arraylist, add the new order, and convert back to array to write back to orders.csv
+                ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
+                orderList.add(order);
+                AlbumOrder[] updatedOrderList = orderList.toArray(new AlbumOrder[orderList.size()]);
+                RWcsv.writeOrders(updatedOrderList);
+
+                System.out.println("Order #" + order.getRefID() + " successfully added!");
+                returnToDisplay = false; // end displayCatalog()
+            }
+            else if(confirm == 'N') returnToDisplay = true; // go back to displayCatalog()
         }
         catch(InputMismatchException mali){
-            System.out.println("Error : " + Check.inputMismatchMsg);
+            System.out.println("Error (" + mali.getClass().getName() + ") : " + Check.inputMismatchMsg);
         }
         catch(OptionInputException mali){
-            System.out.println("Error : " + mali.getMessage());
+            System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+        }
+        catch(OrderInputException mali){
+            System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
         }
 
         return returnToDisplay;
@@ -258,16 +256,12 @@ public class Store{
 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0){
-                            // throw error?
-                        }
+                        if(startIndex == 0) throw new PageIndexException(Check.prevPageMsg);
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == ords.length){
-                            // throw error?
-                        }
+                        if(endIndex == ords.length) throw new PageIndexException(Check.nextPageMsg);
                         else page++;
                         break;
                     }
@@ -288,7 +282,10 @@ public class Store{
                 }
             }
             catch(OptionInputException mali){
-                System.out.println("Error : " + mali.getMessage());
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            }
+            catch(PageIndexException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
         } while(keepDisplaying);
     }
@@ -301,8 +298,13 @@ public class Store{
         orders[index].display();
 
         do{
-            System.out.print("To confirm, please re-type the reference ID > ");
-            confirm = in.nextInt(); in.nextLine();
+            try{
+                System.out.print("To confirm, please re-type the reference ID > ");
+                confirm = in.nextInt(); in.nextLine();
+            }
+            catch(InputMismatchException mali){
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
+            }
         } while(confirm != refID);
 
         ArrayList<AlbumOrder> orderList = new ArrayList<AlbumOrder>(Arrays.asList(orders));
@@ -346,19 +348,20 @@ public class Store{
                                     "'|...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..'\n"+
                                         "======================================================\n");
 
-                System.out.print("Please Select Your Choice > "); int menuInput = in.nextInt(); in.nextLine();
+                System.out.print("Please Select Your Choice > "); char menuInput = in.nextLine().charAt(0);
+                Check.checkOptionInput(menuInput, new char[]{'1', '2', '3', '4'});
                 
                 // switch case through displayMenu() inputs
                 switch(menuInput){
-                    case 1:{ // catalog
+                    case '1':{ // catalog
                         displayCatalog(catalog);
                         break;
                     }
-                    case 2:{ // orders
+                    case '2':{ // orders
                         displayOrderHistory(orders);
                         break;
                     }
-                    case 3:{ // about
+                    case '3':{ // about
                         System.out.println("About Us");
 
                         System.out.println("\nHaru-Haru Store (PH) is your ultimate destination for K-pop enthusiasts in the Philippines. Immerse yourself in the world of Korean pop music with our extensive collection of both physical and digital K-pop albums. From the latest releases to timeless classics, Haru-Haru Store is your go-to haven for all things K-pop, bringing the vibrant beats and visuals of your favorite artists directly to you in the heart of the Philippines.");
@@ -374,23 +377,23 @@ public class Store{
                         "\n\nCopyright 2023 HHS100s. All Rights Reserved.");
                         break;
                     }
-                    case 4:{ // exit
-                        System.out.print("Are you sure you want to quit the program? (Y/N) > ");
-                        char userInput = in.nextLine().charAt(0);
+                    case '4':{ // exit
+                        System.out.print("Are you sure you want to quit the program? [Y/N] > ");
+                        char userInput = in.nextLine().toUpperCase().charAt(0);
                         Check.checkOptionInput(userInput);
 
-                        if (userInput == 'Y' || userInput == 'y') {
-                            System.out.println("Exiting the program. Thank you for using Haru-Haru Store!");
+                        if(userInput == 'Y'){
+                            System.out.println("\nExiting the program. Thank you for using Haru-Haru Store!");
                             running = false;
                         } 
-                        else if (userInput == 'N' || userInput == 'n') {
-                            System.out.println("Continuing with the program.");
+                        else if(userInput == 'N'){
+                            System.out.println("\nContinuing with the program.\n");
                         }
                     }
                 }
             }
             catch(OptionInputException mali){
-                System.out.println("Error : " + mali.getMessage());
+                System.out.println("Error (" + mali.getClass().getName() + ") : " + mali.getMessage());
             }
         }
     }
@@ -410,4 +413,9 @@ class PageIndexException extends Exception{
   // for order inputs
 class OrderInputException extends Exception{
     OrderInputException(String msg){super(msg);}
+}
+
+  // other general input errors
+class DataInputException extends Exception{
+    DataInputException(String msg){super(msg);}
 }

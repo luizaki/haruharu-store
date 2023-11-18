@@ -128,7 +128,7 @@ public class RWcsv{
                 line += "," + String.join(",", ((PhysicalAlbumOrder) ord).getShippingAddress(), Double.toString(((PhysicalAlbumOrder) ord).getShippingFee()), "N/A");
             }
             else if(ord instanceof DigitalAlbumOrder){
-                line += String.join("N/A", "N/A") + "," + ((DigitalAlbumOrder) ord).getBuyerEmail();
+                line += ",N/A,N/A," + ((DigitalAlbumOrder) ord).getBuyerEmail();
             }
 
             orderList.add(line);
