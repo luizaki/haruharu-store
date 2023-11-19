@@ -26,7 +26,6 @@ public class Album{
     public LocalDate getRelease(){return this.release;}
     public double getPrice(){return this.price;}
 
-    // temporary display method
     public void display(){
         System.out.println("[Displaying Album Details]");
         System.out.println("\tAlbum Name: " + this.alName);

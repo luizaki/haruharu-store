@@ -20,7 +20,6 @@ public class DigitalAlbumOrder extends AlbumOrder{
     // getters
     public String getBuyerEmail(){return this.buyerEmail;}
 
-    // WIP (discounted not counted for)
     protected void calculateTotal(){
         this.subTotal = this.quantity * album.getPrice();
         if(this.discounted) this.totalPrice = subTotal * discount;
