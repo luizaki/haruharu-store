@@ -42,12 +42,12 @@ public class Store{
                 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0) page = maxPage; // go to last page if Prev is on page 1
+                        if(page == 0) page = maxPage - 1; // go to last page if Prev is on page 1
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == albums.length) page = 0; // go to page 1 if Next is on last page
+                        if(page == maxPage - 1) page = 0; // go to page 1 if Next is on last page
                         else page++;
                         break;
                     }
@@ -245,6 +245,7 @@ public class Store{
         boolean keepDisplaying = true;
         char input, albumType;
         AlbumOrder[] updated = null;
+        AlbumOrder[] orders = RWcsv.readOrders();
 
         do{
             try{
@@ -276,12 +277,12 @@ public class Store{
 
                 switch(input){
                     case 'P':{ // prev
-                        if(startIndex == 0) page = maxPage; // go to last page if Prev is on page 1
+                        if(page == 0) page = maxPage - 1; // go to last page if Prev is on page 1
                         else page--;
                         break;
                     }
                     case 'N':{ // next
-                        if(endIndex == ords.length) page = 0; // go to page 1 if Next is on last page
+                        if(page == maxPage - 1) page = 0; // go to page 1 if Next is on last page
                         else page++;
                         break;
                     }
